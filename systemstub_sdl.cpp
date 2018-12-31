@@ -4,7 +4,11 @@
  * Copyright (C) 2004-2005 Gregory Montoir (cyx@users.sourceforge.net)
  */
 
+#ifdef __SWITCH__
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "graphics.h"
 #include "systemstub.h"
 #include "util.h"
