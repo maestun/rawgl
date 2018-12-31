@@ -36,6 +36,10 @@ SOURCES		:=	.
 DATA		:=	data
 INCLUDES	:=	.
 EXEFS_SRC	:=	exefs_src
+ICON        :=  icon.jpg
+APP_AUTHOR  :=  cyxx/maestun
+APP_TITLE   :=  Another World
+APP_VERSION :=  1.0
 #ROMFS	:=	romfs
 
 #---------------------------------------------------------------------------------
@@ -46,7 +50,7 @@ ARCH	:=	-march=armv8-a -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DNXLINK_DEBUG
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
