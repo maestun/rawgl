@@ -4,7 +4,11 @@
  * Copyright (C) 2004-2005 Gregory Montoir (cyx@users.sourceforge.net)
  */
 
+#ifdef __SWITCH__
+#include <SDL2/SDL.h>
+#else
 #include <SDL.h>
+#endif
 #include "graphics.h"
 #include "systemstub.h"
 #include "util.h"
@@ -283,7 +287,9 @@ void SystemStub_SDL::processEvents() {
 					if (ev.jaxis.value > kJoystickCommitValue) {
 						_pi.dirMask |= PlayerInput::DIR_DOWN;
 					} else if (ev.jaxis.value < -kJoystickCommitValue) {
+#ifndef __SWITCH__
 						_pi.dirMask |= PlayerInput::DIR_UP;
+#endif
 					}
 					break;
 				}
@@ -313,11 +319,13 @@ void SystemStub_SDL::processEvents() {
 					break;
 				case SDL_CONTROLLER_AXIS_LEFTY:
 				case SDL_CONTROLLER_AXIS_RIGHTY:
+#ifndef __SWITCH__
 					if (ev.caxis.value < -kJoystickCommitValue) {
 						_pi.dirMask |= PlayerInput::DIR_UP;
 					} else {
 						_pi.dirMask &= ~PlayerInput::DIR_UP;
 					}
+#endif
 					if (ev.caxis.value > kJoystickCommitValue) {
 						_pi.dirMask |= PlayerInput::DIR_DOWN;
 					} else {
@@ -342,18 +350,20 @@ void SystemStub_SDL::processEvents() {
 					_pi.pause = pressed;
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_UP:
+#ifndef __SWITCH__
 					if (pressed) {
 						_pi.dirMask |= PlayerInput::DIR_UP;
 					} else {
 						_pi.dirMask &= ~PlayerInput::DIR_UP;
 					}
+#endif
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
 					if (pressed) {
 						_pi.dirMask |= PlayerInput::DIR_DOWN;
 					} else {
 						_pi.dirMask &= ~PlayerInput::DIR_DOWN;
-					}
+					} 
 					break;
 				case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
 					if (pressed) {
@@ -369,7 +379,17 @@ void SystemStub_SDL::processEvents() {
 						_pi.dirMask &= ~PlayerInput::DIR_RIGHT;
 					}
 					break;
+#ifdef __SWITCH__
 				case SDL_CONTROLLER_BUTTON_A:
+					if (pressed) {
+						_pi.dirMask |= PlayerInput::DIR_UP;
+					} else {
+						_pi.dirMask &= ~PlayerInput::DIR_UP;
+					}
+					break;
+#else
+				case SDL_CONTROLLER_BUTTON_A:			
+#endif
 				case SDL_CONTROLLER_BUTTON_B:
 				case SDL_CONTROLLER_BUTTON_X:
 				case SDL_CONTROLLER_BUTTON_Y:

@@ -4,7 +4,12 @@
  * Copyright (C) 2004-2005 Gregory Montoir (cyx@users.sourceforge.net)
  */
 
+#ifdef __SWITCH__
+#include <SDL2/SDL.h>
+#include <switch.h>
+#else
 #include <SDL.h>
+#endif
 #include <getopt.h>
 #include <sys/stat.h>
 #include "engine.h"
@@ -12,7 +17,6 @@
 #include "resource.h"
 #include "systemstub.h"
 #include "util.h"
-
 
 static const char *USAGE = 
 	"Raw(gl) - Another World Interpreter\n"
@@ -64,7 +68,7 @@ static Graphics *createGraphics(int type) {
 	case GRAPHICS_GL:
 		debug(DBG_INFO, "Using GL graphics");
 #ifdef USE_GL
-		return GraphicsGL_create();
+		// return GraphicsGL_create();
 #endif
 	}
 	return 0;
@@ -98,16 +102,19 @@ static void parseScaler(char *name, Scaler *s) {
 	}
 }
 
-static const int DEFAULT_WINDOW_W = 640;
-static const int DEFAULT_WINDOW_H = 400;
+static const int DEFAULT_WINDOW_W = 1280;
+static const int DEFAULT_WINDOW_H = 720;
 
 int main(int argc, char *argv[]) {
-	char *dataPath = 0;
+	char *dataPath = (char *)"data";
+	#if defined(__SWITCH__) && defined(NXLINK_DEBUG)
+		dataPath = (char *)"/switch/rawgl/data";
+	#endif
 	int part = 16001;
 	Language lang = LANG_FR;
-	int graphicsType = GRAPHICS_GL;
+	int graphicsType = GRAPHICS_SOFTWARE;
 	DisplayMode dm;
-	dm.mode   = DisplayMode::WINDOWED;
+	dm.mode   = DisplayMode::FULLSCREEN_AR;
 	dm.width  = DEFAULT_WINDOW_W;
 	dm.height = DEFAULT_WINDOW_H;
 	dm.opengl = (graphicsType == GRAPHICS_GL);
@@ -115,6 +122,12 @@ int main(int argc, char *argv[]) {
 	scaler.name[0] = 0;
 	scaler.factor = 1;
 	bool defaultGraphics = true;
+
+#if defined(__SWITCH__) && defined(NXLINK_DEBUG)
+    socketInitializeDefault();
+	nxlinkStdio();
+#endif
+
 	if (argc == 2) {
 		// data path as the only command line argument
 		struct stat st;
@@ -188,7 +201,7 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 	}
-	g_debugMask = DBG_INFO; // | DBG_VIDEO | DBG_SND | DBG_SCRIPT | DBG_BANK | DBG_SER;
+	g_debugMask = DBG_INFO | DBG_VIDEO | DBG_SND | DBG_SCRIPT | DBG_BANK | DBG_SER;
 	Engine *e = new Engine(dataPath, part);
 	if (defaultGraphics) {
 		// if not set, use original software graphics for 199x editions and GL for the anniversary and 3DO versions
@@ -211,5 +224,10 @@ int main(int argc, char *argv[]) {
 	delete e;
 	stub->fini();
 	delete stub;
+
+#if defined(__SWITCH__) && defined(NXLINK_DEBUG)
+	socketExit();
+#endif
+
 	return 0;
 }
